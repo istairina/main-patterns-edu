@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "develop" ]
 
   workflow_dispatch:
 
@@ -15,9 +15,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Set working directory
-      run: cd ./main-patterns-edu
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
