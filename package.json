@@ -1,0 +1,9 @@
+{
+  "module": "CommonJS",
+  "scripts": {
+    "test": "jest  --verbose"
+  },
+  "devDependencies": {
+    "jest": "^30.0.3"
+  }
+}
