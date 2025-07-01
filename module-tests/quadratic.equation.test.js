@@ -14,3 +14,8 @@ test('should return an array length 1 for x^2 + 2x + 1 = 0', () => {
   const equation = new QuadraticEquation(1, 2, 1);
   expect(equation.solve()).toEqual([-1]);
 });
+
+test('should get exception if first argument is 0', () => {
+  const equation = new QuadraticEquation(0, 2, 1);
+  expect(() => equation.solve()).toThrow();
+})
