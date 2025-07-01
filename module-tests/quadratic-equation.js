@@ -9,9 +9,12 @@ class QuadraticEquation {
     const roots = [];
     const d = this.b * this.b - 4 * this.a * this.c;
 
-    if (d > 0) {
+    if (d >= 0) {
       roots.push((-this.b + Math.sqrt(d)) / (2 * this.a));
-      roots.push((-this.b - Math.sqrt(d)) / (2 * this.a));
+
+      if (d > 0) {
+        roots.push((-this.b - Math.sqrt(d)) / (2 * this.a));
+      }
     }
     
     return roots;
