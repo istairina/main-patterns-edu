@@ -7,6 +7,10 @@ class QuadraticEquation {
       throw new Error('Wrong arguments');
     }
 
+    if (!isFinite(a) || !isFinite(b) || !isFinite(c)) {
+      throw new Error('Arguments must be finite numbers');
+    }
+
     if (Math.abs(a) < EPSILON) {
       throw new Error('First argument shuld not be 0');
     }
