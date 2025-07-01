@@ -6,6 +6,12 @@ class QuadraticEquation {
   }
 
   solve() {
+    const EPSILON = 1e-10;
+
+    if (typeof this.a !== 'number' || Math.abs(this.a) < EPSILON) {
+      throw new Error('Wrong first argument');
+    }
+
     const roots = [];
     const d = this.b * this.b - 4 * this.a * this.c;
 
