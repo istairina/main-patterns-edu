@@ -1,25 +1,24 @@
 class QuadraticEquation {
-  constructor(a, b, c) {
-    this.a = a;
-    this.b = b;
-    this.c = c;
-  }
 
-  solve() {
+  solve(a, b, c) {
     const EPSILON = 1e-10;
 
-    if (typeof this.a !== 'number' || Math.abs(this.a) < EPSILON) {
-      throw new Error('Wrong first argument');
+    if (isNaN(a) || isNaN(b) || isNaN(c)) {
+      throw new Error('Wrong arguments');
+    }
+
+    if (Math.abs(a) < EPSILON) {
+      throw new Error('First argument shuld not be 0');
     }
 
     const roots = [];
-    const d = this.b * this.b - 4 * this.a * this.c;
+    const d = b * b - 4 * a * c;
 
     if (d > EPSILON) {
-      roots.push((-this.b + Math.sqrt(d)) / (2 * this.a));
-      roots.push((-this.b - Math.sqrt(d)) / (2 * this.a));
+      roots.push((-b + Math.sqrt(d)) / (2 * a));
+      roots.push((-b - Math.sqrt(d)) / (2 * a));
     } else if (Math.abs(d) < EPSILON) {
-      roots.push(-this.b / (2 * this.a));
+      roots.push(-b / (2 * a));
     }
       
     return roots;
