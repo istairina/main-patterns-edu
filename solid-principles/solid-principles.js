@@ -4,7 +4,9 @@ class MovableObject {
   constructor() {
     this.x;
     this.y;
+    this.velocity;
   }
+  
   setPosition({ x, y }) {
     this.x = x;
     this.y = y;
@@ -14,8 +16,12 @@ class MovableObject {
   }
 
   setVelocity({ x, y }) {
-    this.x += x;
-    this.y += y;
+    this.velocity = { x, y };
+  }
+
+  move() {
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
   }
 }
 
