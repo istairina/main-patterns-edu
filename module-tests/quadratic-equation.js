@@ -5,7 +5,12 @@ class QuadraticEquation {
     this.c = c;
   }
 
-  solve() {}
+  solve() {
+    const roots = [];
+    const d = this.b * this.b - 4 * this.a * this.c;
+    
+    return roots;
+  }
 }
 
 module.exports = QuadraticEquation;
