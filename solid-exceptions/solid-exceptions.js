@@ -81,7 +81,7 @@ class Store {
 class ExceptionHandler {
   store = new Store(jsonConfig);
 
-  handle(cmd, e, log) {
+  handle(cmd, e) {
     console.log("cmd", cmd)
     const funcName = cmd.funcName;
     const eName = e.name;
@@ -89,35 +89,40 @@ class ExceptionHandler {
     const handler = this.store.getValueOrDefault(funcName, eName);
 
     if (handler === 'retryCommand') {
-      console.log("cmd.cmd", cmd.cmd)
-      new RepeatCommand(cmd, cmd.args).execute();
+      console.log("cmd.cmd", cmd.cmd, cmd.args)
+      queue.put(repeatCommand, cmd, 'sdf');
     } else {
-      queue.put(log.write, funcName, eName)
+      queue.put(writeLog, funcName, eName)
     }
   }
 }
 
-class Log {
-  write(cmdName, eName) {
-    console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${cmdName}`)
-  }
-}
+// class Log {
+//   write(cmdName, eName) {
+//     console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${cmdName}`)
+//   }
+// }
 
-class RepeatCommand {
-  constructor(cmd, args) {
-    this.cmd = cmd;
-    this.args = args;
-  }
+const writeLog = (cmdName, eName) => console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${cmdName}`)
 
-  execute() {
-    queue.put(this.cmd, this.args);
-  }
-}
+// class RepeatCommand {
+//   constructor(cmd, args) {
+//     this.cmd = cmd;
+//     this.args = args;
+//   }
+
+//   execute() {
+//     // console.log("execute")
+//     queue.put(this.cmd, ...this.args);
+//   }
+// }
+
+const repeatCommand = (cmd) => cmd.execute();
 
 
 const queue = new ListQueue();
 const exceptionHandler = new ExceptionHandler();
-const log = new Log();
+// const log = new Log();
 
 queue.put(console.log, 'test');
 
@@ -133,7 +138,7 @@ while (queue.size) {
   try {
     cmd.execute()
   } catch (e) {
-    exceptionHandler.handle(cmd, e, log)
+    exceptionHandler.handle(cmd, e)
   }
 }
 
