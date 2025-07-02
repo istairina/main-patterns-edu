@@ -1,0 +1,17 @@
+[
+  {
+    "command": "log",
+    "exception": "TypeError",
+    "handler": "retryCommand"
+  },
+  {
+    "command": "log",
+    "exception": "Error",
+    "handler": "retryCommand"
+  },
+  {
+    "command": "toString",
+    "exception": "ReferenceError",
+    "handler": "retryCommand"
+  }
+]
