@@ -1,5 +1,6 @@
 const jsonConfig = require('./exception-dict.json');
 
+// Нода для создания очереди, value - команда, next - следующий элемент очереди
 class Node {
   constructor(value = null, next = null) {
     this.value = value;
@@ -7,21 +8,7 @@ class Node {
   }
 }
 
-class Command {
-  constructor(cmd, ...args) {
-    this.cmd = cmd;
-    this.args = args;
-  }
-
-  get funcName() {
-    return this.cmd.name;
-  }
-
-  execute() {
-    return this.cmd(...this.args);
-  }
-}
-
+// Класс для создания очереди вызова команд. Методы получения элемента, добавления, проверки на пустоту и получения размера.
 class ListQueue {
   constructor() {
     this.sizeQ = 0;
@@ -46,10 +33,10 @@ class ListQueue {
 
   put(cmd, ...args) {
     if (this.isEmpty()) {
-      this.head = new Node(new Command(cmd, ...args));
+      this.head = new Node(new Command(cmd, args));
       this.tail = this.head;
     } else {
-      this.tail.next = new Node(new Command(cmd, ...args));
+      this.tail.next = new Node(new Command(cmd, args));
       this.tail = this.tail.next;
     }
 
@@ -61,6 +48,24 @@ class ListQueue {
   }
 }
 
+// Класс отдельной команды, включает отдельно функцию и отдельно аргументы, при вызове execute вызывается функция
+// c аргументами. Отдельно выделено получение имени функции для удобства работы с командами.
+class Command {
+  constructor(cmd, args) {
+    this.cmd = cmd;
+    this.args = args;
+  }
+
+  get funcName() {
+    return this.cmd.name;
+  }
+
+  execute() {
+    return this.cmd(...this.args);
+  }
+}
+
+// Класс для хранения конфигурации для обработки исключений. Содержит метод для получения хэндлера по команде и исключению.
 class Store {
   constructor(jsonConfig) {
     this.config = jsonConfig;
@@ -78,54 +83,47 @@ class Store {
   }
 }
 
+// Класс для управления исключениями
 class ExceptionHandler {
   store = new Store(jsonConfig);
+  maxAttempts = 2;
 
   handle(cmd, e) {
-    console.log("cmd", cmd)
     const funcName = cmd.funcName;
     const eName = e.name;
 
     const handler = this.store.getValueOrDefault(funcName, eName);
 
-    if (handler === 'retryCommand') {
-      console.log("cmd.cmd", cmd.cmd, cmd.args)
-      queue.put(repeatCommand, cmd, 'sdf');
+    if (handler === 'writeToLog') {
+      let currAttempt = cmd.args[1].attempt;
+
+      if (currAttempt < this.maxAttempts) {
+        cmd.args[1].attempt++;
+        queue.put(repeatCommand, cmd, cmd.args[1]); 
+      } else {
+        queue.put(writeToLog, funcName, eName);
+      }
     } else {
-      queue.put(writeLog, funcName, eName)
+      if (handler === 'retryCommand') {
+        queue.put(repeatCommand, cmd, { attempt: 1 });
+      }
     }
   }
 }
 
-// class Log {
-//   write(cmdName, eName) {
-//     console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${cmdName}`)
-//   }
-// }
+// Функция записи в лог
+const writeToLog = (cmdName, eName) =>
+  console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${cmdName}`);
 
-const writeLog = (cmdName, eName) => console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${cmdName}`)
-
-// class RepeatCommand {
-//   constructor(cmd, args) {
-//     this.cmd = cmd;
-//     this.args = args;
-//   }
-
-//   execute() {
-//     // console.log("execute")
-//     queue.put(this.cmd, ...this.args);
-//   }
-// }
-
+// Функция повтора команды
 const repeatCommand = (cmd) => cmd.execute();
-
 
 const queue = new ListQueue();
 const exceptionHandler = new ExceptionHandler();
-// const log = new Log();
 
 queue.put(console.log, 'test');
 
+// функция для проверки выброса исключений
 const toString = function () {
   return a.toString();
 };
@@ -136,16 +134,10 @@ while (queue.size) {
   const cmd = queue.get();
 
   try {
-    cmd.execute()
+    cmd.execute();
   } catch (e) {
-    exceptionHandler.handle(cmd, e)
+    exceptionHandler.handle(cmd, e);
   }
 }
 
-
-
-
-
-
-
-module.export = { ListQueue }
+module.export = { ListQueue };

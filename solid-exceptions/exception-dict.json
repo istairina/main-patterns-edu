@@ -13,5 +13,10 @@
     "command": "toString",
     "exception": "ReferenceError",
     "handler": "retryCommand"
+  },
+  {
+    "command": "repeatCommand",
+    "exception": "ReferenceError",
+    "handler": "writeToLog"
   }
 ]
