@@ -88,6 +88,10 @@ class ExceptionHandler {
   store = new Store(jsonConfig);
   maxAttempts = 2;
 
+  constructor(queue) {
+    this.queue = queue;
+  }
+
   handle(cmd, e) {
     const funcName = cmd.funcName;
     const eName = e.name;
@@ -99,13 +103,13 @@ class ExceptionHandler {
 
       if (currAttempt < this.maxAttempts) {
         cmd.args[1].attempt++;
-        queue.put(repeatCommand, cmd, cmd.args[1]); 
+        this.queue.put(repeatCommand, cmd, cmd.args[1]);
       } else {
-        queue.put(writeToLog, funcName, eName);
+        this.queue.put(writeToLog, funcName, eName);
       }
     } else {
       if (handler === 'retryCommand') {
-        queue.put(repeatCommand, cmd, { attempt: 1 });
+        this.queue.put(repeatCommand, cmd, { attempt: 1 });
       }
     }
   }
@@ -119,7 +123,7 @@ const writeToLog = (cmdName, eName) =>
 const repeatCommand = (cmd) => cmd.execute();
 
 const queue = new ListQueue();
-const exceptionHandler = new ExceptionHandler();
+const exceptionHandler = new ExceptionHandler(queue);
 
 queue.put(console.log, 'test');
 
@@ -140,4 +144,4 @@ while (queue.size) {
   }
 }
 
-module.export = { ListQueue };
+module.exports = { ListQueue, Command, writeToLog, repeatCommand, ExceptionHandler };
