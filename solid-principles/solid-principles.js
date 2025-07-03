@@ -97,7 +97,7 @@ class CheckFuelCommand {
   }
 
   check(nessaryFuel) {
-    if ((this.tank.getFuel() - nessaryFuel) < 0) {
+    if (this.tank.getFuel() - nessaryFuel < 0) {
       throw new Error('Not enough fuel');
     }
   }
@@ -113,7 +113,17 @@ class BurnFuelCommand {
   }
 }
 
-class CommandException {}
+class Command {
+  constructor(func) {
+    this.func = func;
+  }
+
+  execute() {
+    this.func();
+  }
+}
+
+class CommandException extends Error {}
 
 class MacroCommand {
   constructor(commands) {
@@ -131,6 +141,41 @@ class MacroCommand {
   }
 }
 
+const tank = new Fuel(100);
+const spaceObject = new MovableObject();
+spaceObject.setPosition({ x: 1, y: 1 });
+spaceObject.setVelocity({ x: 10, y: 1 });
+
+
+class DirectMovement {
+  constructor(fuel, tank, spaceObject) {
+    this.fuel = fuel;
+    this.tank = tank;
+    this.spaceObject = spaceObject;
+  }
+
+  execute() {
+    const commands = new MacroCommand([
+      new Command(() => new CheckFuelCommand(this.tank).check(this.fuel)),
+      new Command(() => new Movement().move(this.spaceObject)),
+      new Command(() => new BurnFuelCommand(this.tank).burn(this.fuel)),
+    ]);
+    commands.execute();
+  }
+}
+
+const directMovement = new DirectMovement(10, tank, spaceObject);
+
+for (let i = 0; i <= 10; i += 1) {
+  try {
+    directMovement.execute();
+    console.log("fuel:", tank.getFuel());
+  } catch (e) {
+    console.error(e.message);
+  }
+}
+
+
 module.exports = {
   UObject,
   MovableObject,
@@ -140,5 +185,5 @@ module.exports = {
   BurnFuelCommand,
   CommandException,
   MacroCommand,
-  Fuel
+  Fuel,
 };
