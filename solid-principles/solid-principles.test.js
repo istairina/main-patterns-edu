@@ -1,8 +1,13 @@
 const {
-  MovableObject,
   UObject,
+  MovableObject,
   Movement,
   Rotation,
+  CheckFuelCommand,
+  BurnFuelCommand,
+  CommandException,
+  MacroCommand,
+  Fuel,
 } = require('./solid-principles');
 
 describe('SpaceObjects used SOLID principles', () => {
@@ -49,11 +54,39 @@ describe('SpaceObjects used SOLID principles', () => {
 
   it('throw exception if object is not rotatable', () => {
     const someObject = new UObject();
-    expect(() => rotation.rotate(someObject, 180)).toThrow('The object cannot rotate');
+    expect(() => rotation.rotate(someObject, 180)).toThrow(
+      'The object cannot rotate'
+    );
   });
 
   it('throw exception if angle is not set', () => {
     const spaceObject = new MovableObject();
     expect(() => rotation.rotate(spaceObject)).toThrow('Angle is not set');
+  });
+});
+
+describe('Use Fuel commands', () => {
+  let tank;
+
+  beforeEach(() => {
+    tank = new Fuel(100);
+  });
+
+  it('should burn fuel', () => {
+    const burnFuelCommand = new BurnFuelCommand(tank);
+    burnFuelCommand.burn(50);
+    expect(tank.getFuel()).toBe(50);
+  });
+
+  it('should throw exception if not enough fuel', () => {
+    const checkFuelCommand = new CheckFuelCommand(tank);
+    expect(() => checkFuelCommand.check(150)).toThrow('Not enough fuel');
+  });
+
+  it("shouldn't throw exception if enough fuel", () => {
+    const tank = new Fuel(100);
+    const checkFuelCommand = new CheckFuelCommand(tank);
+    checkFuelCommand.check(50);
+    expect(() => checkFuelCommand.check(50)).not.toThrow();
   });
 });

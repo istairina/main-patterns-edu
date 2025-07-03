@@ -38,7 +38,7 @@ class MovableObject extends UObject {
 
 // каждое движение объекта - это смещение его координат: (x, y) = (x + dx, y + dy)
 // перед перемещением добавлены проверки, что объект имеет координаты, скорость
-// и является перемещаемым. 
+// и является перемещаемым.
 class Movement {
   move(movableObject) {
     if (!(movableObject instanceof MovableObject)) {
@@ -58,24 +58,87 @@ class Movement {
   }
 }
 
-
 // Вращение объекта - изменение его угла. Происходит по аналогии с перемещением
 class Rotation {
-    rotate(movableObject, angle) {
-      if (!(movableObject instanceof MovableObject)) {
-        throw new Error('The object cannot rotate');
-      }
-
-      if (angle === undefined) {
-        throw new Error('Angle is not set');
-      }
-  
-      if (movableObject.x === undefined || movableObject.y === undefined) {
-        throw new Error('Position is not set');
-      }
-  
-      movableObject.angle = (movableObject.angle + angle) % 360;
+  rotate(movableObject, angle) {
+    if (!(movableObject instanceof MovableObject)) {
+      throw new Error('The object cannot rotate');
     }
+
+    if (angle === undefined) {
+      throw new Error('Angle is not set');
+    }
+
+    if (movableObject.x === undefined || movableObject.y === undefined) {
+      throw new Error('Position is not set');
+    }
+
+    movableObject.angle = (movableObject.angle + angle) % 360;
+  }
 }
 
-module.exports = { UObject, MovableObject, Movement, Rotation };
+class Fuel {
+  constructor(fuelCapacity) {
+    this.fuel = fuelCapacity;
+  }
+
+  getFuel() {
+    return this.fuel;
+  }
+
+  setFuel(fuel) {
+    this.fuel = fuel;
+  }
+}
+
+class CheckFuelCommand {
+  constructor(tank) {
+    this.tank = tank;
+  }
+
+  check(nessaryFuel) {
+    if ((this.tank.getFuel() - nessaryFuel) < 0) {
+      throw new Error('Not enough fuel');
+    }
+  }
+}
+
+class BurnFuelCommand {
+  constructor(tank) {
+    this.tank = tank;
+  }
+
+  burn(fuel) {
+    this.tank.setFuel(this.tank.getFuel() - fuel);
+  }
+}
+
+class CommandException {}
+
+class MacroCommand {
+  constructor(commands) {
+    this.commands = commands;
+  }
+
+  execute() {
+    for (const command of this.commands) {
+      try {
+        command.execute();
+      } catch (e) {
+        throw new CommandException(e.message);
+      }
+    }
+  }
+}
+
+module.exports = {
+  UObject,
+  MovableObject,
+  Movement,
+  Rotation,
+  CheckFuelCommand,
+  BurnFuelCommand,
+  CommandException,
+  MacroCommand,
+  Fuel
+};
