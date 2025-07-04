@@ -123,7 +123,7 @@ class Command {
   }
 }
 
-class CommandException extends Error {}
+class CommandException extends Error { }
 
 class MacroCommand {
   constructor(commands) {
@@ -186,4 +186,6 @@ module.exports = {
   CommandException,
   MacroCommand,
   Fuel,
+  Command,
+  DirectMovement
 };
