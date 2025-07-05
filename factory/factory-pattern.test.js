@@ -1,11 +1,11 @@
-const { IoC, Move } = require('./factory-pattern');
+const { IoC, Move, Vector, MovableAdapter } = require('./factory-pattern');
 
 describe('IoC Container', () => {
   let ioc;
 
   beforeEach(() => {
     ioc = new IoC();
-    ioc.resolve("IoC.Register", "Move", () => new Move());
+    ioc.resolve("IoC.Register", "Move", () => new Move(new Vector(0, 0), new Vector(1, 0)));
   });
 
   test('should register and resolve method', () => {
@@ -19,7 +19,7 @@ describe('IoC Container', () => {
     moveInstance.execute();
     moveInstance.execute();
 
-    expect(moveInstance.pos).toBe(2);
+    expect(moveInstance.pos.x).toBe(2);
   });
 
   test('should have separate instances in different scopes', () => {
@@ -35,8 +35,35 @@ describe('IoC Container', () => {
     const moveInstance2 = ioc.resolve("Move");
 
     expect(moveInstance1).not.toBe(moveInstance2);
-    expect(moveInstance1.pos).toBe(1);
-    expect(moveInstance2.pos).toBe(0);
+    expect(moveInstance1.pos.x).toBe(1);
+    expect(moveInstance2.pos.x).toBe(0);
   });
 });
 
+describe('Adapter', () => {
+  let moveInstance;
+  let adapter;
+
+  beforeEach(() => {
+    moveInstance = new Move(new Vector(0, 0), new Vector(1, 1));
+    adapter = new MovableAdapter(moveInstance);
+  });
+
+  test('should return initial position', () => {
+    const position = adapter.getPosition();
+
+    expect(position).toEqual(new Vector(0, 0));
+  });
+
+  test('should return velocity', () => {
+    const velocity = adapter.getVelocity();
+    expect(velocity).toEqual(new Vector(1, 1));
+  });
+
+  test('should change position on set position', () => {
+    adapter.setPosition(new Vector(10, 20));
+    const position = adapter.getPosition();
+
+    expect(position).toEqual(new Vector(10, 20));
+  });
+});
