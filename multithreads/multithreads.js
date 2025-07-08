@@ -7,6 +7,7 @@ class Thread {
   constructor() {
     this.queue = new ListQueue();
     this._running = false;
+    this._stopping = false;
   }
 
   put(cmd, ...args) {
@@ -31,7 +32,9 @@ class Thread {
       } catch (error) {
         exceptionHandler.handle(cmd, error);
       } finally {
-        this.process();
+        if (!this._stopping) {
+          this.process();
+        }
       }
     });
   }
@@ -39,6 +42,17 @@ class Thread {
   stop() {
     this._running = false;
     console.log('stop');
+  }
+
+  softStop() {
+    const size = this.queueSize;
+    this._stopping = true;
+    console.log("softStop running, queue size: ", size);
+    for (let i = 0; i < size; i += 1) {
+      this.process();
+    }
+
+    this.stop();
   }
 
   get queueSize() {
@@ -58,11 +72,19 @@ thread.put(console.log, 'next command 3');
 
 thread.start();
 
-thread.put(console.log, 'new command');
+
 
 setTimeout(() => {
-  thread.stop();
+  thread.stop(); 
   console.log(`Queue size after stop: ${thread.queueSize}`);
+}, 0);
+
+setTimeout(() => {
+  thread.put(console.log, 'new command 1');
+  thread.put(console.log, 'new command 2');
+  thread.put(console.log, 'new command 3');
+  thread.put(console.log, 'new command 4');
+  thread.put(console.log, 'new command 5');
 }, 1);
 
 setTimeout(() => {
