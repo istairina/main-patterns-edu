@@ -1,12 +1,12 @@
-const { IoC, ListQueue, ICommand } = require('../common');
+const { IoC, ListQueue, ExceptionHandler } = require('../common');
 
 const ioc = new IoC();
-
+const exceptionHandler = new ExceptionHandler();
 
 class Thread {
   constructor() {
     this.queue = new ListQueue();
-    this._start = false;
+    this._running = false;
   }
 
   put(cmd, ...args) {
@@ -14,43 +14,57 @@ class Thread {
   }
 
   start() {
-    this._start = true;
-
-    while (this.start) {
-      if (this.queue.isEmpty()) {
-        this.pause();
-        break;
-      }
-
-      const cmd = this.queue.get();
-
-      try {
-        cmd.execute();
-      } catch (e) {
-        console.log(e);
-        break;
-      }
+    if (!this._running) {
+      this._running = true;
+      this.process();
     }
   }
 
-  pause() {
-    this._start = false;
-    console.log("pause");
-  }
-  continue() {
-    this._start = true;
-    console.log("continue");
+  process() {
+    if (this.queue.isEmpty() || !this._running) return;
+
+    const cmd = this.queue.get();
+
+    setImmediate(() => {
+      try {
+        cmd.execute();
+      } catch (error) {
+        exceptionHandler.handle(cmd, error);
+      } finally {
+        this.process();
+      }
+    });
   }
 
   stop() {
-    this._start = false;
-    console.log("stop");
+    this._running = false;
+    console.log('stop');
+  }
+
+  get queueSize() {
+    return this.queue.size;
   }
 }
 
 const thread = new Thread();
-thread.put(console.log, "start");
+
+thread.put(console.log, 'start');
+thread.put(() => console.log('next command'));
+thread.put(() => {
+  throw new Error('Error');
+});
+thread.put(console.log, 'next command 2');
+thread.put(console.log, 'next command 3');
 
 thread.start();
 
-// thread.stop();
+thread.put(console.log, 'new command');
+
+setTimeout(() => {
+  thread.stop();
+  console.log(`Queue size after stop: ${thread.queueSize}`);
+}, 1);
+
+setTimeout(() => {
+  console.log(`Final queue size: ${thread.queueSize}`);
+}, 100);
