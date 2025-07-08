@@ -19,41 +19,14 @@ class Store {
 }
 
 class ExceptionHandler {
-  store = new Store(jsonConfig);
-  maxAttempts = 2;
-
-  constructor(queue) {
-    this.queue = queue;
-  }
-
   handle(cmd, e) {
-    const funcName = cmd.funcName;
-    const eName = e.name;
+    const funcName = cmd?.funcName || 'unknown function';
+    const eName = e?.name || 'unknown error';
 
-    const handler = this.store.getValueOrDefault(funcName, eName);
-
-    if (handler === 'writeToLog') {
-      let currAttempt = cmd.args[1].attempt;
-
-      if (currAttempt < this.maxAttempts) {
-        cmd.args[1].attempt++;
-        this.queue.put(repeatCommand, cmd, cmd.args[1]);
-      } else {
-        this.queue.put(writeToLog, funcName, eName);
-      }
-    } else {
-      if (handler === 'retryCommand') {
-        this.queue.put(repeatCommand, cmd, { attempt: 1 });
-      }
-    }
+    console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${funcName}`);
   }
 }
 
-// Функция записи в лог
-const writeToLog = (cmdName, eName) =>
-  console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${cmdName}`);
 
-// Функция повтора команды
-const repeatCommand = (cmd) => cmd.execute();
 
 module.exports = { ExceptionHandler };

@@ -1,7 +1,7 @@
 {
   "module": "CommonJS",
   "scripts": {
-    "test": "jest  --verbose"
+    "test": "jest  --verbose --detectOpenHandles"
   },
   "devDependencies": {
     "jest": "^30.0.3"
