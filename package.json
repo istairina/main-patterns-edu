@@ -1,9 +1,13 @@
 {
   "module": "CommonJS",
   "scripts": {
+    "start": "node start.js",
     "test": "jest  --verbose"
   },
   "devDependencies": {
     "jest": "^30.0.3"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
   }
 }

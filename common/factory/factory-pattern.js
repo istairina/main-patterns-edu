@@ -5,7 +5,6 @@ class Move {
   }
   execute() {
     this.pos++;
-    // console.log("Object has been moved, current position: ", this.pos);
   }
 }
 

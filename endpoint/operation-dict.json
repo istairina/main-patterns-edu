@@ -1,0 +1,14 @@
+[
+  {
+    "operatoinId": 1,
+    "command": "MOVE"
+  },
+  {
+    "operatoinId": 2,
+    "command": "ROTATE"
+  },
+  {
+    "operatoinId": 3,
+    "command": "SET_INITIAL_VELOCITY"
+  }
+]
