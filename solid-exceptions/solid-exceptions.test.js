@@ -1,14 +1,13 @@
-const { ListQueue, Command, writeToLog, repeatCommand, ExceptionHandler } = require('./solid-exceptions.js');
+const { ListQueue, Command, writeToLog, repeatCommand, ExceptionHandler, EventLoop, Store } = require('./solid-exceptions.js');
+const jsonConfig = require('./exception-dict.json');
 
 const handlerRepeatSpy = jest.fn();
 
 describe('exception handling', () => {
-  let queue;
-  let exceptionHandler;
+  let eventLoop;
 
   beforeEach(() => {
-    queue = new ListQueue();
-    exceptionHandler = new ExceptionHandler(queue);
+    eventLoop = new EventLoop();
   });
 
   test('Test that command write to log', () => {
@@ -25,23 +24,15 @@ describe('exception handling', () => {
   });
 
   test('Exception handler write to log', () => {
-    queue.put(() => {
+    eventLoop.add(() => {
       throwException();
     });
 
-    const mockExceptionHandler = {
-      handle: jest.fn(),
-    };
+    const logSpy = jest.spyOn(global.console, 'log');
 
-    const exceptionCommand = queue.get();
+    eventLoop.start();
 
-    try {
-      exceptionCommand.execute();
-    } catch (e) {
-      mockExceptionHandler.handle(exceptionCommand, e);
-    }
-
-    expect(mockExceptionHandler.handle).toHaveBeenCalled();
+    expect(logSpy).toHaveBeenCalledWith(expect.stringMatching(/ОШИБКА/));
   });
 
   test('repeat command', () => {
@@ -53,6 +44,9 @@ describe('exception handling', () => {
   });
 
   test('Exception handler puts retry command to queue', () => {
+    const queue = new ListQueue();
+    const exceptionHandler = new ExceptionHandler(queue, new Store(jsonConfig))
+
     const toString = function () {
       return a.toString();
     };
@@ -62,7 +56,7 @@ describe('exception handling', () => {
     const initialSize = queue.size;
 
     const exceptionCommand = queue.get();
-    
+
     try {
       exceptionCommand.execute();
     } catch (e) {

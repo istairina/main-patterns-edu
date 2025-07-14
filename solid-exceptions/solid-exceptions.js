@@ -83,13 +83,37 @@ class Store {
   }
 }
 
+class EventLoop {
+  constructor() {
+    this.queue = new ListQueue();
+    this.exceptionalHandler = new ExceptionHandler(this.queue, new Store(jsonConfig));
+  }
+
+  add(command, args) {
+    this.queue.put(command, args)
+  }
+
+  start() {
+    while (this.queue.size) {
+      const command = this.queue.get();
+
+      try {
+        command.execute();
+
+      } catch (e) {
+        this.exceptionalHandler.handle(command, e);
+      }
+    }
+  }
+}
+
 // Класс для управления исключениями
 class ExceptionHandler {
-  store = new Store(jsonConfig);
   maxAttempts = 2;
 
-  constructor(queue) {
+  constructor(queue, store) {
     this.queue = queue;
+    this.store = store;
   }
 
   handle(cmd, e) {
@@ -122,26 +146,20 @@ const writeToLog = (cmdName, eName) =>
 // Функция повтора команды
 const repeatCommand = (cmd) => cmd.execute();
 
-const queue = new ListQueue();
-const exceptionHandler = new ExceptionHandler(queue);
 
-queue.put(console.log, 'test');
+// Ниже код для ручного тестирования
+const eventLoop = new EventLoop();
+
+eventLoop.add(console.log, 'test');
 
 // функция для проверки выброса исключений
 const toString = function () {
   return a.toString();
 };
 
-queue.put(toString);
+eventLoop.add(toString);
 
-while (queue.size) {
-  const cmd = queue.get();
+eventLoop.start();
 
-  try {
-    cmd.execute();
-  } catch (e) {
-    exceptionHandler.handle(cmd, e);
-  }
-}
 
-module.exports = { ListQueue, Command, writeToLog, repeatCommand, ExceptionHandler };
+module.exports = { ListQueue, Command, writeToLog, repeatCommand, ExceptionHandler, EventLoop, Store };
