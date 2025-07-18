@@ -69,18 +69,15 @@ class MovableAdapter {
   }
 
   getPosition() {
-    const pos = this.obj.pos;
-    return new Vector(pos.x, pos.y);
+    return ioc.resolve('Spaceship.Operations.IMovable:position.get', this.obj);
   }
 
   getVelocity() {
-    const vel = this.obj.velocity;
-    return new Vector(vel.x, vel.y);
+    return ioc.resolve('Spaceship.Operations.IMovable:velocity.get', this.obj);
   }
 
   setPosition(newValue) {
-    this.obj.pos.x = newValue.x;
-    this.obj.pos.y = newValue.y;
+    return ioc.resolve('Spaceship.Operations.IMovable:position.set', this.obj, newValue).execute();
   }
 }
 
@@ -92,8 +89,8 @@ ioc.resolve(
   () => new Move(new Vector(0, 0), new Vector(1, 0))
 );
 
-ioc.resolve('Scopes.New', 'scope1');
-ioc.resolve('Scopes.Current', 'scope1');
+// ioc.resolve('Scopes.New', 'scope1');
+// ioc.resolve('Scopes.Current', 'scope1');
 
 const moveInstance = ioc.resolve('Move');
 
@@ -139,8 +136,11 @@ ioc.resolve(
 
 const adapter = ioc.resolve('Adapter', moveInstance);
 
-adapter.setPosition(new Vector(10, 20)); 
+console.log("init position", adapter.getPosition());
 
-console.log("new position", adapter.getPosition()); 
+adapter.setPosition(new Vector(20, 20));
+
+console.log("updated moveInstance position", moveInstance.pos)
+console.log("new position", adapter.getPosition());
 
 module.exports = { Move, IoC, Vector, MovableAdapter };
