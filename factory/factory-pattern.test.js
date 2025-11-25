@@ -1,4 +1,4 @@
-const { IoC, Move, Vector, MovableAdapter } = require('./factory-pattern');
+const { IoC, Move, Vector, ioc, IMovable } = require('./factory-pattern');
 
 describe('IoC Container', () => {
   let ioc;
@@ -46,7 +46,7 @@ describe('Adapter', () => {
 
   beforeEach(() => {
     moveInstance = new Move(new Vector(0, 0), new Vector(1, 1));
-    adapter = new MovableAdapter(moveInstance);
+    adapter = ioc.resolve('Adapter', IMovable, moveInstance);
   });
 
   test('should return initial position', () => {
