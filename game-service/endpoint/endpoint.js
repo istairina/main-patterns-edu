@@ -76,8 +76,6 @@ router.post('/newgame', async (req, res) => {
     return;
   }
 
-  console.log("players", players);
-
   const response = await fetch('http://localhost:4000/register', {
     method: 'POST',
     headers: {

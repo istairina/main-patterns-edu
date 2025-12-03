@@ -23,7 +23,7 @@ class ExceptionHandler {
     const funcName = cmd?.funcName || 'unknown function';
     const eName = e?.name || 'unknown error';
 
-    console.log(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${funcName}`);
+    console.error(`ОШИБКА ${eName} ПРИ ЗАПУСКЕ ФУНКЦИИ ${funcName}`);
   }
 }
 
