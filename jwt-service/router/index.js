@@ -11,8 +11,6 @@ router.post('/register', (req, res) => {
   const lastId = gameDb[gameDb.length - 1].gameId;
   const newGameId = lastId + 1;
 
-  console.log(req.body);
-
   const players = req.body;
 
   if (players.length < 2) {
@@ -35,8 +33,6 @@ router.post('/join', (req, res) => {
   const { username, gameId } = credentials;
 
   const game = gameDb.find((game) => game.gameId === +gameId);
-
-  console.log(game);
 
   if (!game) {
     res.status(404).json({ message: "Invalid gameId" });
