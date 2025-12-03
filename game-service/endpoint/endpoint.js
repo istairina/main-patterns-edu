@@ -68,6 +68,53 @@ ioc.resolve("IoC.Register", "MOVE", (obj, steps) => {
 });
 
 
+router.post('/newgame', async (req, res) => {
+  const { players } = req.body;
+
+  if (players.length < 2) {
+    res.status(400).send("Not enough players");
+    return;
+  }
+
+  console.log("players", players);
+
+  const response = await fetch('http://localhost:4000/register', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(players),
+  })
+
+  const data = await response.json();
+  res.status(response.status).json(data);
+
+});
+
+// {
+//   "players": ["user1", "user2"]
+// }
+
+router.post('/join-game', async (req, res) => {
+  const { gameId, username } = req.body;
+
+  const response = await fetch('http://localhost:4000/join', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ gameId, username }),
+  })
+
+  const data = await response.json();
+  res.status(response.status).json(data);
+})
+
+// {
+//   "gameId": 3,
+//   "username": "user1"
+// }
+
 router.post(`/:gameId`, (req, res) => {
   const { gameId } = req.params;
 
@@ -93,20 +140,20 @@ router.post(`/:gameId`, (req, res) => {
 
 
 // исполнение команд в очереди
-setInterval(() => {
-  gameIds.forEach((gameId) => {
-    const gameQueue = gamesQ[gameId];
+// setInterval(() => {
+//   gameIds.forEach((gameId) => {
+//     const gameQueue = gamesQ[gameId];
 
-    while (!gameQueue.isEmpty()) {
-      const command = gameQueue.get();
-      command.execute();
-    }
+//     while (!gameQueue.isEmpty()) {
+//       const command = gameQueue.get();
+//       command.execute();
+//     }
 
-    console.log("game1", games.get(1).getObj(1))
-    console.log("game2", games.get(2).getObj(1))
+//     console.log("game1", games.get(1).getObj(1))
+//     console.log("game2", games.get(2).getObj(1))
 
-  });
-}, 1000);
+//   });
+// }, 1000);
 
 
 module.exports = { InterpretCommand, router }

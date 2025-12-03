@@ -2,7 +2,7 @@ const { Game } = require('./createGame/game');
 const express = require('express');
 
 
-const PORT = 3000;
+const PORT = 3500;
 const GAME_AMOUNT = 3;
 const OBJECT_AMOUNT = 3;
 
@@ -27,6 +27,6 @@ app.use(express.json());
 app.use(router);
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Game server running on http://localhost:${PORT}`);
 });
 
