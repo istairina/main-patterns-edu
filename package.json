@@ -10,7 +10,7 @@
     "jwt": "node jwt-service/start.js",
     "game": "node game-service/start.js",
     "start": "concurrently \"node jwt-service/start.js\" \"node game-service/start.js\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "concurrently \"cd game-service && npm test\" \"cd jwt-service && npm test\""
   },
   "repository": {
     "type": "git",
