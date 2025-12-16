@@ -1,4 +1,5 @@
 const { ListQueue, ExceptionHandler } = require('../common');
+const { NormalState } = require('./thread-state');
 
 class Thread {
   constructor() {
@@ -7,6 +8,7 @@ class Thread {
     this._running = false;
     this._stopping = false;
     this._intervalId = null;
+    this.state = new NormalState();
   }
 
   put(cmd, ...args) {
@@ -31,14 +33,23 @@ class Thread {
     if (this.queue.isEmpty()) this.pause();
 
     const cmd = this.queue.get();
+    if (!cmd) return;
 
     setImmediate(() => {
       try {
-        cmd.execute();
+        const nextState = this.state.handle(cmd, this);
+        
+        if (nextState === null) {
+          this._running = false;
+          this._stopping = true;
+          return;
+        }
+
+        this.state = nextState;
       } catch (error) {
         this.exceptionHandler.handle(cmd, error);
       } finally {
-        if (!this._stopping) {
+        if (!this._stopping && this._running) {
           this.process();
         }
       }
