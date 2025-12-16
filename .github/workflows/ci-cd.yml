@@ -19,7 +19,13 @@ jobs:
         node-version: '18'
 
     - name: Install dependencies
+      working-directory: ./interpretator
       run: npm install
 
+    - name: Build project
+      working-directory: ./interpretator
+      run: npm run build
+
     - name: Run tests
+      working-directory: ./interpretator
       run: npm test
