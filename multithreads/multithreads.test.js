@@ -1,4 +1,7 @@
 const { Thread } = require('./multithreads');
+const { HardStop, MoveToCommand, RunCommand } = require('../common/commands/thread-commands');
+const { NormalState, MoveToState } = require('./thread-state');
+const { ListQueue } = require('../common');
 
 describe('Thread', () => {
   let thread;
@@ -44,6 +47,67 @@ describe('Thread', () => {
       expect(thread.queueSize).toBe(0);
       done();
     });
+  });
+
+  test('HardStop command stops thread', (done) => {
+    const executedCommands = [];
+    
+    thread.put(() => executedCommands.push('cmd1'));
+    thread.put(HardStop);
+    thread.put(() => executedCommands.push('cmd2'));
+    
+    thread.start();
+
+    setTimeout(() => {
+      expect(thread._running).toBe(false);
+      expect(thread._stopping).toBe(true);
+      expect(executedCommands).toEqual(['cmd1']);
+      expect(thread.queueSize).toBeGreaterThan(0);
+      done();
+    }, 100);
+  });
+
+  test('MoveToCommand transitions thread to MoveToState', (done) => {
+    const targetQueue = new ListQueue();
+    const executedCommands = [];
+    
+    thread.put(() => executedCommands.push('executed before transition'));
+    thread.put(MoveToCommand, targetQueue);
+    thread.put(() => executedCommands.push('should be redirected'));
+    
+    thread.start();
+
+    setTimeout(() => {
+      expect(thread.state).toBeInstanceOf(MoveToState);
+      
+      expect(targetQueue.size).toBe(1);
+      
+      expect(executedCommands).toContain('executed before transition');
+      
+      expect(executedCommands).not.toContain('should be redirected');
+      done();
+    }, 100);
+  });
+
+  test('RunCommand transitions thread back to NormalState', (done) => {
+    const targetQueue = new ListQueue();
+    const executedCommands = [];
+    
+    thread.put(MoveToCommand, targetQueue);
+    thread.put(() => executedCommands.push('redirected'));
+    thread.put(RunCommand);
+    thread.put(() => executedCommands.push('executed'));
+    
+    thread.start();
+
+    setTimeout(() => {
+      expect(thread.state).toBeInstanceOf(NormalState);
+      
+      expect(targetQueue.size).toBe(1);
+      
+      expect(executedCommands).toContain('executed');
+      done();
+    }, 100);
   });
 
 });
