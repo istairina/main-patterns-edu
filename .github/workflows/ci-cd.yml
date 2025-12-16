@@ -18,8 +18,14 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Install dependencies
+    - name: Install root dependencies
       run: npm install
+
+    - name: Install jwt-service dependencies
+      run: cd jwt-service && npm install
+
+    - name: Install game-service dependencies
+      run: cd game-service && npm install
 
     - name: Run tests
       run: npm test
