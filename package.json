@@ -1,14 +1,22 @@
 {
-  "module": "CommonJS",
-  "scripts": {
-    "start": "node start.js",
-    "test": "jest  --verbose"
-  },
+  "name": "main-patterns-edu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "devDependencies": {
-    "jest": "^30.0.3"
+    "concurrently": "^9.2.1"
   },
-  "dependencies": {
-    "express": "^5.1.0",
-    "supertest": "^7.1.3"
-  }
+  "scripts": {
+    "jwt": "node jwt-service/start.js",
+    "game": "node game-service/start.js",
+    "start": "concurrently \"node jwt-service/start.js\" \"node game-service/start.js\"",
+    "test": "concurrently \"cd game-service && npm test\" \"cd jwt-service && npm test\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/istairina/main-patterns-edu.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/istairina/main-patterns-edu#readme"
 }

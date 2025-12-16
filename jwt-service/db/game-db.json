@@ -1,0 +1,10 @@
+[
+  {
+    "gameId": 1,
+    "usernames": ["user", "user2"]
+  },
+  {
+    "gameId": 2,
+    "usernames": ["user2"]
+  }
+]
